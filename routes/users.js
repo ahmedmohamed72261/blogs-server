@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
-const { auth, adminAuth, ownerOrAdmin } = require('../middleware/auth');
+const { auth, adminAuth, ownerOrAdmin, secureAdminAuth } = require('../middleware/auth');
 const { upload, uploadToCloudinary, deleteFromCloudinary } = require('../config/cloudinary');
 
 const router = express.Router();
@@ -169,7 +169,7 @@ router.put('/change-password', [
 // @route   GET /api/users
 // @desc    Get all users (Admin only)
 // @access  Private (Admin)
-router.get('/', [auth, adminAuth], async (req, res) => {
+router.get('/', [auth, ...secureAdminAuth], async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -234,7 +234,7 @@ router.get('/:id', async (req, res) => {
 // @access  Private (Admin)
 router.put('/:id/status', [
   auth,
-  adminAuth,
+  ...secureAdminAuth,
   body('isActive')
     .isBoolean()
     .withMessage('isActive must be a boolean value')
@@ -282,7 +282,7 @@ router.put('/:id/status', [
 // @route   DELETE /api/users/:id
 // @desc    Delete user account (Admin only)
 // @access  Private (Admin)
-router.delete('/:id', [auth, adminAuth], async (req, res) => {
+router.delete('/:id', [auth, ...secureAdminAuth], async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {

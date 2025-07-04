@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const { auth, adminAuth } = require('../middleware/auth');
+const { auth, adminAuth, secureAdminAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ const generateToken = (userId) => {
 // @access  Private (Admin)
 router.post('/register', [
   auth,
-  adminAuth,
+  ...secureAdminAuth,
   body('username')
     .isLength({ min: 3, max: 30 })
     .withMessage('Username must be between 3 and 30 characters')
